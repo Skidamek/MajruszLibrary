@@ -26,7 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Map;
 
-@Mixin( LivingEntity.class )
+@Mixin( value = LivingEntity.class, priority = 1100 )
 public abstract class MixinLivingEntity implements IMixinLivingEntity {
 	private @Shadow int useItemRemaining;
 	float majruszlibrary$lastDamage = 0.0f;

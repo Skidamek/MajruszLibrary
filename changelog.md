@@ -1,3 +1,4 @@
 - added compatibility with Aquaculture 2 for fishing related features (reported by @JinKhya, @Ladocterus)
+- added compatibility with MC Dungeons Weapons for damage related features (reported by @mochalit)
 - fixed crash `Accessing LegacyRandomSource from multiple threads` (reported by @Luigi delle Bicocche, @davey)
 - fixed compatibility crash `java.lang.IndexOutOfBoundsException` (reported by @GermanArtur, @memphismc)
