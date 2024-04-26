@@ -54,6 +54,11 @@ class VersionChecker {
 	}
 
 	public void register() {
+		Thread thread = new Thread( VersionChecker.this::findAvailableUpdates );
+		thread.start();
+	}
+
+	private void findAvailableUpdates() {
 		Optional< URL > update = Integration.getUpdateURL( this.helper.getModId() );
 		if( update.isEmpty() ) {
 			this.helper.logError( "Missing update url" );
