@@ -1,0 +1,1 @@
+- added missing compatibility with Aquaculture 2 for NeoForge (reported by @LilChromie)
