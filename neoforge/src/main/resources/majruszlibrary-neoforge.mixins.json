@@ -8,8 +8,8 @@
     "MixinAbstractContainerScreen"
   ],
   "mixins": [
+    "MixinAquaFishingBobberEntity",
     "MixinEnchantment",
-    "MixinFishingHook",
     "MixinLootTable"
   ],
   "injectors": {

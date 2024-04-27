@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Random {
+	static final RandomSource LOGICAL_CLIENT = RandomSource.create();
 	static final RandomSource CLIENT = RandomSource.create();
 	static final RandomSource SERVER = RandomSource.create();
 
@@ -19,7 +20,13 @@ public class Random {
 	 thread safe and can be accessed on both server and client at the same time.
 	 */
 	public static RandomSource getThreadSafe() {
-		return Side.isClient() ? CLIENT : SERVER;
+		if( Side.isLogicalClient() ) {
+			return LOGICAL_CLIENT;
+		} else if( Side.isClient() ) {
+			return CLIENT;
+		} else {
+			return SERVER;
+		}
 	}
 
 	public static float nextFloat() {

@@ -94,6 +94,7 @@ java {
 dependencies {
     minecraft "net.minecraftforge:forge:${forge_version}"
     compileOnly project(':common')
+    implementation fg.deobf('curse.maven:aquaculture-60028:4608454')
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
