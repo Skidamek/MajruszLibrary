@@ -21,7 +21,11 @@ public abstract class MixinAquaFishingBobberEntity extends MixinFishingHook {
 			target = "Lcom/teammetallurgy/aquaculture/entity/AquaFishingBobberEntity;timeUntilLured:I",
 			value = "FIELD"
 		),
-		method = "catchingFish (Lnet/minecraft/core/BlockPos;)V"
+		method = {
+			"catchingFish (Lnet/minecraft/core/BlockPos;)V",
+			"*(Lnet/minecraft/core/BlockPos;)V"
+		},
+		require = 0
 	)
 	private void catchingFish( AquaFishingBobberEntity hook, int timeUntilLured ) {
 		this.timeUntilLured = Events.dispatch( new OnFishingTimeGet( hook, timeUntilLured ) ).getTicks();
