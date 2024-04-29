@@ -1,3 +1,0 @@
-- added missing compatibility for Aquaculture 2 (reported by @LilChromie)
-- added Aquaculture 2 compatibility for NeoForge (reported by @LilChromie)
-- fixed random server crash `Accessing LegacyRandomSource from multiple threads` (reported by @AVeryLittleGhost, @memphismc)
