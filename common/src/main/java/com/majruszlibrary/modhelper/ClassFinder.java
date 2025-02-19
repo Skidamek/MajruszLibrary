@@ -5,7 +5,7 @@ import com.majruszlibrary.platform.Side;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -24,10 +24,24 @@ class ClassFinder {
 
 	public void findClasses() {
 		this.addUnique( this.findClassesInPackage() );
-		this.addUnique( this.findClassesInJar( "mods" ) );
-		this.addUnique( this.findClassesInJar( "libs" ) );
+		Path cwd = Path.of( "." ).toAbsolutePath().normalize();
+		this.addUnique( this.findClassesInJar( cwd.resolve("mods").toFile() ) );
+		this.addUnique( this.findClassesInJar( cwd.resolve("libs").toFile() ) );
+		Path customModsDir = getThisModsDir(); // It's possible that mod may be loaded from different directory #76 #89
+		this.addUnique( this.findClassesInJar( customModsDir.toFile() ) );
 		if( this.classes.isEmpty() ) {
 			throw new IllegalStateException( "ClassFinder did not find any classes" );
+		}
+	}
+
+	public static Path getThisModsDir() {
+		try {
+			return Path.of(ClassFinder.class.getProtectionDomain().getCodeSource().getLocation().toURI())
+					.getParent()
+					.toAbsolutePath()
+					.normalize();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -80,9 +94,7 @@ class ClassFinder {
 		return classes;
 	}
 
-	private List< Class< ? > > findClassesInJar( String directory ) {
-		List< Class< ? > > classes = new ArrayList<>();
-		File mods = Paths.get( "./%s".formatted( directory ) ).toFile();
+	private List< Class< ? > > findClassesInJar( File mods ) {
 		if( !mods.isDirectory() ) {
 			return classes;
 		}
