@@ -4,6 +4,7 @@ import com.majruszlibrary.platform.Side;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -27,19 +28,35 @@ class ClassFinder {
 		Path cwd = Path.of( "." ).toAbsolutePath().normalize();
 		this.addUnique( this.findClassesInJar( cwd.resolve("mods").toFile() ) );
 		this.addUnique( this.findClassesInJar( cwd.resolve("libs").toFile() ) );
-		Path customModsDir = getThisModsDir(); // It's possible that mod may be loaded from different directory #76 #89
+		Path customModsDir = getThisModFile().getParent(); // It's possible that mod may be loaded from different directory #76 #89
 		this.addUnique( this.findClassesInJar( customModsDir.toFile() ) );
 		if( this.classes.isEmpty() ) {
 			throw new IllegalStateException( "ClassFinder did not find any classes" );
 		}
 	}
 
-	public static Path getThisModsDir() {
+	public static Path getThisModFile() {
 		try {
-			return Path.of(ClassFinder.class.getProtectionDomain().getCodeSource().getLocation().toURI())
-					.getParent()
-					.toAbsolutePath()
-					.normalize();
+			URI uri = ClassFinder.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+
+			String path = uri.getPath();
+			int index = path.indexOf('!');
+			if (index != -1) {
+				path = path.substring(0, index);
+			}
+
+			index = path.indexOf('#');
+			if (index != -1) {
+				path = path.substring(0, index);
+			}
+
+			if (System.getProperty("os.name").toLowerCase().contains("win")) {
+				if (path.startsWith("/")) {
+					path = path.substring(1);
+				}
+			}
+
+			return Path.of(path).toAbsolutePath().normalize();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
