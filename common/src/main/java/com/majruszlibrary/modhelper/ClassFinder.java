@@ -4,11 +4,9 @@ import com.majruszlibrary.platform.Side;
 
 import java.io.File;
 import java.io.InputStream;
-import java.net.URISyntaxException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -39,16 +37,30 @@ class ClassFinder {
 	}
 
 	public static Path getThizJar() {
-		CodeSource cs = ClassFinder.class.getProtectionDomain().getCodeSource();
-		if (cs != null) {
-			try {
-				return Paths.get(cs.getLocation().toURI());
-			} catch (URISyntaxException e) {
-				e.printStackTrace();
-			}
-		}
+		try {
+			URI uri = ClassFinder.class.getProtectionDomain().getCodeSource().getLocation().toURI();
 
-		throw new RuntimeException( "Cannot get thiz MajruszLibrary jar" );
+			String path = uri.getPath();
+			int index = path.indexOf('!');
+			if (index != -1) {
+				path = path.substring(0, index);
+			}
+
+			index = path.indexOf('#');
+			if (index != -1) {
+				path = path.substring(0, index);
+			}
+
+			if (System.getProperty("os.name").toLowerCase().contains("win")) {
+				if (path.startsWith("/")) {
+					path = path.substring(1);
+				}
+			}
+
+			return Path.of(path).toAbsolutePath().normalize();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public < Type > Type getInstance( Predicate< Class< ? > > predicate ) {
