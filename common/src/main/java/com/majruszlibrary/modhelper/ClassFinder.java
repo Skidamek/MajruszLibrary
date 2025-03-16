@@ -4,9 +4,11 @@ import com.majruszlibrary.platform.Side;
 
 import java.io.File;
 import java.io.InputStream;
-import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -24,42 +26,29 @@ class ClassFinder {
 	}
 
 	public void findClasses() {
+		Path cwd = Path.of( System.getProperty("user.dir") );
+		Path customModsDir = getThizJar().getParent(); // It's possible that mod may be loaded from different directory #76 #89
+
 		this.addUnique( this.findClassesInPackage() );
-		Path cwd = Path.of( "." ).toAbsolutePath().normalize();
 		this.addUnique( this.findClassesInJar( cwd.resolve("mods").toFile() ) );
 		this.addUnique( this.findClassesInJar( cwd.resolve("libs").toFile() ) );
-		Path customModsDir = getThisModFile().getParent(); // It's possible that mod may be loaded from different directory #76 #89
 		this.addUnique( this.findClassesInJar( customModsDir.toFile() ) );
 		if( this.classes.isEmpty() ) {
 			throw new IllegalStateException( "ClassFinder did not find any classes" );
 		}
 	}
 
-	public static Path getThisModFile() {
-		try {
-			URI uri = ClassFinder.class.getProtectionDomain().getCodeSource().getLocation().toURI();
-
-			String path = uri.getPath();
-			int index = path.indexOf('!');
-			if (index != -1) {
-				path = path.substring(0, index);
+	public static Path getThizJar() {
+		CodeSource cs = ClassFinder.class.getProtectionDomain().getCodeSource();
+		if (cs != null) {
+			try {
+				return Paths.get(cs.getLocation().toURI());
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
 			}
-
-			index = path.indexOf('#');
-			if (index != -1) {
-				path = path.substring(0, index);
-			}
-
-			if (System.getProperty("os.name").toLowerCase().contains("win")) {
-				if (path.startsWith("/")) {
-					path = path.substring(1);
-				}
-			}
-
-			return Path.of(path).toAbsolutePath().normalize();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
 		}
+
+		throw new RuntimeException( "Cannot get thiz MajruszLibrary jar" );
 	}
 
 	public < Type > Type getInstance( Predicate< Class< ? > > predicate ) {
